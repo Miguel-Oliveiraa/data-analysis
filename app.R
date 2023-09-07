@@ -2,6 +2,12 @@
 ## app.R ##
 library(shiny)
 library(shinydashboard)
+library(ggplot2)
+library(dplyr)
+
+valve <- read.csv("Valve_Player_Data.csv")
+
+valve_summary <- valve
 
 ui <- dashboardPage(
   dashboardHeader(title = "Dashboard"),
@@ -24,7 +30,7 @@ ui <- dashboardPage(
                     selected = NULL,
                   ),
                   dateInput(
-                    inputId="start_date",
+                    inputId="start_date_1",
                     label="Selecione a data inicial",
                     value = NULL,
                     min = "mm-yyyy",
@@ -39,7 +45,7 @@ ui <- dashboardPage(
                     daysofweekdisabled = NULL
                   ),
                   dateInput(
-                    inputId="end_date",
+                    inputId="end_date_1",
                     label="Selecione a data final",
                     value = NULL,
                     min = NULL,
@@ -54,11 +60,10 @@ ui <- dashboardPage(
                     daysofweekdisabled = NULL
                   ),
                 ),
-                
                 mainPanel(
                   navbarPage(NULL,
                     tabPanel("Tabela",
-                             box()),
+                             box(tableOutput('table'))),
                     tabPanel("Gráfico em linha",
                              box()),
                     tabPanel("Histograma",
@@ -133,7 +138,19 @@ ui <- dashboardPage(
   )
 )
 
-server <- function(input, output) { }
+server <- function(input, output) {
+
+  valve <- read.csv("Valve_Player_Data.csv")
+
+  valve_summary <- valve
+
+  df <- reactive({
+    valve_summary %>%
+      mutate(Month_Year = as.Date(paste0("01 ", Month_Year), "%d %B %Y")) %>%
+      filter(Month_Year >= input$start_date_1 & Month_Year <= input$end_date_1)
+  })
+
+  output$table <- renderTable(head(valve_summary, 10))
+}
 
 shinyApp(ui, server)
-
