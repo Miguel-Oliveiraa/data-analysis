@@ -5,9 +5,8 @@ library(shinydashboard)
 library(ggplot2)
 library(dplyr)
 
+# Carregue seus dados
 valve <- read.csv("Valve_Player_Data.csv")
-
-valve_summary <- valve
 
 ui <- dashboardPage(
   dashboardHeader(title = "Dashboard"),
@@ -26,7 +25,7 @@ ui <- dashboardPage(
                   selectInput(
                     inputId = "classe",
                     label = "Escolha uma classe",
-                    choices = c("Average players", "Gain in users", "Percent Gain", "Peak Players"),
+                    choices = c("Average players", "Peak Players"),
                     selected = NULL,
                   ),
                   dateInput(
@@ -63,7 +62,7 @@ ui <- dashboardPage(
                 mainPanel(
                   navbarPage(NULL,
                     tabPanel("Tabela",
-                             box(tableOutput('table'))),
+                             tableOutput('table_01')),
                     tabPanel("Gráfico em linha",
                              box()),
                     tabPanel("Histograma",
@@ -81,13 +80,13 @@ ui <- dashboardPage(
                   selectInput(
                     inputId = "classe_x",
                     label = "Eixo x",
-                    choices = c("Average players", "Gain in users", "Percent Gain", "Peak Players"),
+                    choices = c("Average players", "Peak Players"),
                     selected = NULL,
                   ),
                   selectInput(
                     inputId = "classe_y",
                     label = "Eixo y",
-                    choices = c("Average players", "Gain in users", "Percent Gain", "Peak Players"),
+                    choices = c("Average players", "Peak Players"),
                     selected = NULL,
                   ),
                   dateInput(
@@ -124,7 +123,7 @@ ui <- dashboardPage(
                 mainPanel(
                   navbarPage(NULL,
                              tabPanel("Tabela",
-                                      box()),
+                                      tableOutput('table_02')),
                              tabPanel("Gráfico em linha",
                                       box()),
                              tabPanel("Gráfico em barra das médias",
@@ -139,18 +138,73 @@ ui <- dashboardPage(
 )
 
 server <- function(input, output) {
-
-  valve <- read.csv("Valve_Player_Data.csv")
-
-  valve_summary <- valve
-
-  df <- reactive({
-    valve_summary %>%
-      mutate(Month_Year = as.Date(paste0("01 ", Month_Year), "%d %B %Y")) %>%
-      filter(Month_Year >= input$start_date_1 & Month_Year <= input$end_date_1)
+  ######################## ABA 01 ##################################
+  # Crie uma função reativa para mapear a opção selecionada no selectInput para o nome da coluna correspondente
+  selected_column <- reactive({
+    switch(input$classe,
+           "Average players" = "Avg_players",
+           "Peak Players" = "Peak_Players"
+    )
   })
-
-  output$table <- renderTable(head(valve_summary, 10))
+  
+  
+  ############################ Tabela aba 01 #######################
+  #calcula moda
+  calculate_mode <- function(x) {
+    unique_x <- unique(x)
+    counts <- table(x)
+    return(unique_x[which.max(counts)])
+  }
+  
+  # Crie um resumo com base na coluna selecionada
+  valve_summary <- reactive({
+    col_name <- selected_column()
+    
+    summary_data <- valve %>%
+      group_by(Game_Name) %>%
+      summarise(
+        moda = calculate_mode(get(col_name)),
+        média = mean(get(col_name)),
+        mediana = median(get(col_name)),
+        desvio_padrão = sd(get(col_name)),
+        valor_mínimo = min(get(col_name)),
+        valor_máximo = max(get(col_name))
+      )
+    
+    return(summary_data)
+  })
+  # Renderize a tabela com base nos dados resumidos
+  output$table_01 <- renderTable(valve_summary())
+  
+  ######################## ABA 02 ##################################
+  selected_column_x <- reactive({
+    switch(input$classe_x,
+           "Average players" = "Avg_players",
+           "Peak Players" = "Peak_Players"
+    )
+  })
+  selected_column_y <- reactive({
+    switch(input$classe_y,
+           "Average players" = "Avg_players",
+           "Peak Players" = "Peak_Players"
+    )
+  })
+  
+  ############################ Tabela aba 02 #######################
+  # Crie um resumo com base na coluna selecionada
+  correlacao_por_jogo <- reactive({
+    valve %>%
+      group_by(Game_Name) %>%
+      summarise(
+        Correlacao = cor(.data[[selected_column_x()]], .data[[selected_column_y()]], method = "spearman")
+      )
+  })
+  
+  # Renderize a tabela de correlação por jogo
+  output$table_02 <- renderTable({
+    correlacao_por_jogo()
+  })
+  
 }
 
 shinyApp(ui, server)
