@@ -58,7 +58,7 @@ ui <- dashboardPage(
                     tabPanel("Tabela",
                              tableOutput('table_01')),
                     tabPanel("Gráfico em linha",
-                             box()),
+                             box(plotOutput('lineplot'))),
                     tabPanel("Histograma",
                              box()),
                     tabPanel("Boxplot",
@@ -123,7 +123,7 @@ ui <- dashboardPage(
                              tabPanel("Gráfico em barra das médias",
                                       box()),
                              tabPanel("Scatterplot",
-                                      box())
+                                      box(plotOutput('scatterplot')))
                   )
                 )
               ))
@@ -179,6 +179,14 @@ server <- function(input, output) {
   })
   # Renderize a tabela com base nos dados resumidos
   output$table_01 <- renderTable(apple_summary())
+
+  # Renderiza o gráfico de linhas com base nos dados resumidos
+  output$lineplot <- renderPlot({
+    col_name <- selected_column()
+    ggplot(filtered_data_1(), aes_string(x = col_name, y = col_name)) +
+      geom_line() +
+      geom_smooth(method = "lm")
+  })
   
   ######################## ABA 02 ##################################
   selected_column_x <- reactive({
@@ -223,6 +231,15 @@ server <- function(input, output) {
   # Renderize a tabela de correlação por jogo
   output$table_02 <- renderTable({
     correlacao_dados()
+  })
+
+  output$scatterplot <- renderPlot({
+    ggplot(
+      filtered_data_2(), 
+      aes_string(x = selected_column_x(), y = selected_column_y())) + 
+      geom_point(aes(col = filtered_data_2()$Species), size=3) + scale_color_discrete(name ="Species") +
+      geom_smooth(aes(group=filtered_data_2()$Species, color = filtered_data_2()$Species), method='lm')
+    
   })
   
 }
