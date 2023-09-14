@@ -55,14 +55,14 @@ ui <- dashboardPage(
                 ),
                 mainPanel(
                   navbarPage(NULL,
-                    tabPanel("Tabela",
-                             tableOutput('table_01')),
-                    tabPanel("Gráfico em linha",
-                             box()),
-                    tabPanel("Histograma",
-                             box()),
-                    tabPanel("Boxplot",
-                             box())
+                             tabPanel("Tabela",
+                                      tableOutput('table_01')),
+                             tabPanel("Gráfico em linha",
+                                      box(plotOutput('lineplot'))),
+                             tabPanel("Histograma",
+                                      box()),
+                             tabPanel("Boxplot",
+                                      box())
                   )
                 )
                 
@@ -119,11 +119,11 @@ ui <- dashboardPage(
                              tabPanel("Tabela",
                                       tableOutput('table_02')),
                              tabPanel("Gráfico em linha",
-                                      box()),
+                                      box(plotOutput('lineplot_tab2'))),
                              tabPanel("Gráfico em barra das médias",
                                       box()),
                              tabPanel("Scatterplot",
-                                      box())
+                                      box(plotOutput('scatterplot')))
                   )
                 )
               ))
@@ -180,6 +180,14 @@ server <- function(input, output) {
   # Renderize a tabela com base nos dados resumidos
   output$table_01 <- renderTable(apple_summary())
   
+  # Renderiza o gráfico de linhas com base nos dados resumidos
+  output$lineplot <- renderPlot({
+    col_name <- selected_column()
+    ggplot(filtered_data_1(), aes_string(x = col_name, y = col_name)) +
+      geom_line() +
+      geom_smooth(method = "lm")
+  })
+  
   ######################## ABA 02 ##################################
   selected_column_x <- reactive({
     switch(input$classe_x,
@@ -223,6 +231,27 @@ server <- function(input, output) {
   # Renderize a tabela de correlação por jogo
   output$table_02 <- renderTable({
     correlacao_dados()
+  })
+  
+  output$lineplot_tab2 <- renderPlot({
+    col_name_x <- selected_column_x()
+    col_name_y <- selected_column_y()
+    
+    ggplot(
+      filtered_data_2(), 
+      aes_string(x = col_name_x, y = col_name_y)) + 
+      geom_line() +
+      labs(x = col_name_x, y = col_name_y) +
+      ggtitle("Gráfico de Linha")
+  })
+  
+  output$scatterplot <- renderPlot({
+    ggplot(
+      filtered_data_2(), 
+      aes_string(x = selected_column_x(), y = selected_column_y())) + 
+      geom_point(aes(col = filtered_data_2()$Species), size=3) + scale_color_discrete(name ="Species") +
+      geom_smooth(aes(group=filtered_data_2()$Species, color = filtered_data_2()$Species), method='lm')
+    
   })
   
 }
