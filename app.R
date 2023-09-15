@@ -184,7 +184,8 @@ server <- function(input, output) {
   output$lineplot <- renderPlot({
     col_name <- selected_column()
     ggplot(filtered_data_1(), aes_string(x = as.Date(filtered_data_1()$Date), y = col_name)) +
-      geom_line()
+      geom_line(color="blue") +
+      theme_minimal()
   })
   
   ######################## ABA 02 ##################################
@@ -233,20 +234,21 @@ server <- function(input, output) {
   })
   
   output$lineplot_tab2 <- renderPlot({
-    col_name_x <- selected_column_x()
-    col_name_y <- selected_column_y()
-    
-    ggplot(
-      filtered_data_2(), 
-      aes_string(x = col_name_x, y = col_name_y)) + 
-      geom_line() +
-      labs(x = col_name_x, y = col_name_y) +
-      ggtitle("Gráfico de Linha")
+    ggplot(data=filtered_data_2(), aes(x = as.Date(filtered_data_2()$Date))) +
+      geom_line(aes(y = .data[[selected_column_x()]], color = "Eixo x"), linetype = "solid") +
+      geom_line(aes(y = .data[[selected_column_y()]], color = "Eixo y"), linetype = "dashed") +
+      scale_color_manual(values = c("Eixo x" = "blue", "Eixo y" = "red")) +
+      labs(
+        x = "Data",
+        y = "Dados",  # Rótulo para o primeiro eixo Y
+        color = "Series"  # Legenda das cores
+      ) +
+      theme_minimal()
   })
   
   output$scatterplot <- renderPlot({
     ggplot(
-      filtered_data_2(), 
+      filtered_data_2(),
       aes_string(x = selected_column_x(), y = selected_column_y())) + 
       geom_point(aes(col = filtered_data_2()$Species), size=3) + scale_color_discrete(name ="Species") +
       geom_smooth(aes(group=filtered_data_2()$Species, color = filtered_data_2()$Species), method='lm')
