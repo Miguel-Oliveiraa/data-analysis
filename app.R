@@ -192,8 +192,10 @@ server <- function(input, output) {
   output$boxplot <- renderPlot({
     col_name <- selected_column()
     
-    ggplot(filtered_data_1(), aes(y=col_name, x=as.Date(filtered_data_1()$Date))) + 
-      geom_boxplot(color="blue")
+    ggplot(filtered_data_1(), aes(x = as.Date(filtered_data_1()$Date), y = col_name)) + 
+      geom_boxplot(color="blue") +
+      theme_minimal() +
+      labs(x = NULL, y = NULL)
     
   })
   
