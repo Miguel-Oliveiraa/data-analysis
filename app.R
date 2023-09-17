@@ -1,4 +1,4 @@
-install.packages("shinydashboard")
+#install.packages("shinydashboard")
 ## app.R ##
 library(shiny)
 library(shinydashboard)
@@ -60,9 +60,9 @@ ui <- dashboardPage(
                              tabPanel("Gráfico em linha",
                                       box(plotOutput('lineplot'))),
                              tabPanel("Histograma",
-                                      box()),
+                                      box(plotOutput('hist'))),
                              tabPanel("Boxplot",
-                                      box(plotOutput('boxplot')))     
+                                      box())
                   )
                 )
                 
@@ -186,16 +186,16 @@ server <- function(input, output) {
     ggplot(filtered_data_1(), aes_string(x = as.Date(filtered_data_1()$Date), y = col_name)) +
       geom_line(color="blue") +
       theme_minimal()
-  })
-  
-  # Renderiza o bloxpot com base nos dados resumidos
-  output$boxplot <- renderPlot({
-    col_name <- selected_column()
     
-    ggplot(filtered_data_1(), aes(x = as.Date(filtered_data_1()$Date), y = col_name)) + 
-      geom_boxplot(color="blue") +
-      theme_minimal() +
-      labs(x = NULL, y = NULL)
+  })
+  # Renderiza o Histograma com base nos dados resumido
+  output$hist <- renderPlot({
+    col_name <- selected_column()
+    ggplot(filtered_data_1(), aes_string(x = as.Date(filtered_data_1()$Date)))+
+      geom_histogram(bins = 5, color="blue") +  labs(
+        title = "Quantidade de dados coletados", subtitle = " *Não leva em consideração as classes*",
+        x = "Data", y = "Quantidade")+ stat_function(fun = dnorm) + theme_minimal()
+      
     
   })
   
