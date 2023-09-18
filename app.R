@@ -194,7 +194,8 @@ server <- function(input, output) {
     ggplot(filtered_data_1(), aes_string(x = as.Date(filtered_data_1()$Date)))+
       geom_histogram(bins = 5, color="blue") +  labs(
         title = "Quantidade de dados coletados", subtitle = " *Não leva em consideração as classes*",
-        x = "Data", y = "Quantidade")+ stat_function(fun = dnorm) + theme_minimal()
+        x = "Data", y = "Quantidade")+ stat_function(fun = dnorm) + 
+        theme_minimal()
       
     
   })
