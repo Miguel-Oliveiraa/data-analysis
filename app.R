@@ -62,7 +62,7 @@ ui <- dashboardPage(
                              tabPanel("Histograma",
                                       box(plotOutput('hist'))),
                              tabPanel("Boxplot",
-                                      box())
+                                      box(plotOutput('boxplot')))
                   )
                 )
                 
@@ -197,6 +197,16 @@ server <- function(input, output) {
         x = "Data", y = "Quantidade")+ stat_function(fun = dnorm) + theme_minimal()
       
     
+  })
+  
+  # Renderiza o boxplot com base nos dados resumido
+  output$boxplot <- renderPlot({
+      col_name <- selected_column()
+      
+      ggplot(filtered_data_1(), aes(x = as.Date(filtered_data_1()$Date), y = col_name)) + 
+        geom_boxplot(color="blue") +
+        theme_minimal() +
+        labs(x = NULL, y = NULL)
   })
   
   ######################## ABA 02 ##################################
