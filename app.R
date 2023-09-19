@@ -121,7 +121,7 @@ ui <- dashboardPage(
                              tabPanel("Gráfico em linha",
                                       box(plotOutput('lineplot_tab2'))),
                              tabPanel("Gráfico em barra das médias",
-                                      box()),
+                                      box(plotOutput('barplot'))),
                              tabPanel("Scatterplot",
                                       box(plotOutput('scatterplot')))
                   )
@@ -275,6 +275,26 @@ server <- function(input, output) {
       geom_point(aes(col = filtered_data_2()$Species), size=3) + scale_color_discrete(name ="Species") +
       geom_smooth(aes(group=filtered_data_2()$Species, color = filtered_data_2()$Species), method='lm')
     
+  })
+
+output$barplot <- renderPlot({
+    col_x <- selected_column_x()
+    col_y <- selected_column_y()
+    
+    media_x <- mean(filtered_data_2()[[col_x]])
+    media_y <- mean(filtered_data_2()[[col_y]])
+    
+    media_df <- data.frame(Variavel = c("Variável X", "Variável Y"), Media = c(media_x, media_y))
+    
+    ggplot(media_df, aes(x = Variavel, y = Media)) +
+      geom_bar(stat = "identity", fill = "blue", width = 0.5) +
+      labs(
+        x = "Variável",
+        y = "Média",
+        title = "Comparação das Médias",
+        subtitle = "Médias das Variáveis X e Y"
+      ) +
+      theme_minimal()
   })
   
 }
