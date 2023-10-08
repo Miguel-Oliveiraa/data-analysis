@@ -50,7 +50,7 @@ Se tiver alguma dúvida ou sugestão, sinta-se à vontade para entrar em contato
 
 Divirta-se explorando os dados e aprendendo com a análise! 🚀
 
-## Authors
+## Autores
 
 - [@alinemelos](https://github.com/alinemelos)
 - [@Eduardachgs](https://github.com/Eduardachgs)
