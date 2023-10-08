@@ -5,6 +5,10 @@ Análise de ações da Apple (AAPL34) desenvolvido durante a disciplina ET586 (E
 ## Objetivo do Projeto
 O objetivo deste projeto foi realizar uma análise detalhada das flutuações nas ações da Apple (AAPL34). Utilizamos técnicas estatísticas e de visualização de dados para extrair insights significativos e entender melhor os padrões de mercado relacionados a essa ação.
 
+## Galeria do projeto
+![Gráfico em linha do preço de fechamento](imagens/exemplo.png)
+![Gráfico em linha do preço maximo e preço ajustado](imagens/exemplo.png)
+
 ## Ferramentas e Tecnologias Utilizadas
 - __Linguagem de Programação:__ R
 - __Bibliotecas Principais:__ Shiny, ggplot2, dplyr, corrplot
